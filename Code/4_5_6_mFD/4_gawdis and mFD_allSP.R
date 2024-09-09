@@ -166,8 +166,8 @@ check <- lapply(gd,CandW)
 check_all <- CandW(GD_all)
 
 #Compute multimensional functional spaces (PCoA) and assess their quality
-qual <- lapply(gd, quality.fspaces,fdendro = "average",maxdim_pcoa = 487,deviation_weighting = c("absolute", "squared"),fdist_scaling = c(TRUE, FALSE))
-qual1 <- quality.fspaces(sp_dist = GD_all, fdendro = "average",maxdim_pcoa = 487,deviation_weighting = c("absolute", "squared"),fdist_scaling = c(TRUE, FALSE)) 
+qual <- lapply(gd, quality.fspaces,fdendro = "average",maxdim_pcoa = 10,deviation_weighting = c("absolute", "squared"),fdist_scaling = c(TRUE, FALSE))
+qual1 <- quality.fspaces(sp_dist = GD_all, fdendro = "average",maxdim_pcoa = 10,deviation_weighting = c("absolute", "squared"),fdist_scaling = c(TRUE, FALSE)) 
 
 #check if any species have 0 distance
 duplicates_all <- lapply( traits_cut, function(x){duplicated(x) | duplicated(x, fromLast = TRUE)})
