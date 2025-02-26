@@ -1,4 +1,4 @@
-#add supertree information and run missForest using taxonomy/supertree and traits
+#add supertree information and run missForest using taxonomy/supertree and traits to impute missing data
 library(readxl)
 library(dplyr)
 library(tidyr)
@@ -11,7 +11,7 @@ tax <- read_excel("###/data/taxonomy/taxonomy.xlsx")
 tax$site <- NULL
 
 #get traits
-traits <- read_excel("###/Gogo&Miguasha_fish_traits.xlsx")
+traits <- read_excel("###Data/Devonian fish traits/Gogo&Miguasha_fish_traits.xlsx")
 
 #remove pre-caudal length (too many missing in Devonian and modern data sets)
 traits$`pre-caudal length if different from standard length`<-NULL
@@ -74,9 +74,11 @@ missing_family <- function(df, grp) {
 
 #how many are missing per species
 missSp <-  data.frame(species=as.character(traits$taxon),prop_miss=rowMeans(is.na(traits[,])))
+
 #list of species with few traits/taxonomic info
 remSp <- missSp$species[missSp$prop_miss>0.52]
 
+#remove standard length
 traits$`standard length` <-NULL
 
 ##now impute traits using missforest#######
