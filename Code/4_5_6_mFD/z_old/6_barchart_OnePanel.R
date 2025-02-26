@@ -1,4 +1,4 @@
-#make barchart of mFD results
+#barchart of mFD results
 library(mFD)
 library(dplyr)
 library(tidyr)
@@ -11,14 +11,18 @@ library(colorBlindness)
 
 #Adjust file path at"###"
 
-wkD <- "###/"
-setwd(wkD)
+setwd("###")
+Plot1 <- readRDS("###/data/data_for_plots/Plot1.RDS")
+Plot3 <- readRDS("###/data/data_for_plots/Plot3.RDS")
 
-Plot3 <- readRDS(paste(wkD,"###/Data/data_for_plots/Plot3.RDS", sep = ""))
+#cut to three metrics and make Devonian black so they stand out, tropical with a black outline
+d1 <- Plot1$data
 d3 <- Plot3$data
+d1 <- d1[d1$metric!="originality",]
+d3 <- d3[d3$metric!="originality",]
 
 #assign data 
-df <- d3 
+df <- Plot3$data
 df$metric <- as.character(df$metric)
 
 df$metric <- ifelse(df$metric=="richness", "functional richness", 
@@ -64,15 +68,14 @@ legend_labels <- c("Devonian", "reef", "estuary","freshwater")
 # Create a named vector for scale_fill_manual using all site colors
 all_site_colours <- setNames(site_colours, site_order)
 
-# Fix metric name
+#fix metric name
 df$metric[df$metric == "specialization"] <- "specialisation"
 
 # Define a scaling factor for the text size
 text_scaling_factor <- 1.5
 
-# Make light colours to use in geom_rect()
+#make light colours to use in geom_rect()
 original_pink <- rgb(255/255, 182/255, 193/255)
-
 # Mix the original pink with white to make it lighter
 lighter_pink <- colorRampPalette(colors = c(original_pink, "white"))(2)[1]
 
@@ -119,19 +122,11 @@ plot_barchart <- function(x, metric) {
 }
 
 ric <- plot_barchart(df,"functional richness") + theme(axis.title.x = element_blank(),axis.text.x = element_blank())
-nn <- plot_barchart(df,"nearest neighbour") + theme(legend.position = "none", axis.text.x = element_text(angle = 45,  vjust = 1, hjust = 1))
-spe <- plot_barchart(df,"specialisation") + theme(legend.position = "none", axis.title.x = element_blank(),axis.text.x = element_blank())
-div <- plot_barchart(df,"divergence") + theme(legend.position = "none",axis.title.x = element_blank(), axis.text.x = element_blank())
-eve <- plot_barchart(df,"evenness") + theme(legend.position = "none", axis.text.x = element_text(angle = 45,  vjust = 1, hjust = 1))
-
-#SES data
-wkD <- "###/"
-setwd(wkD)
-Plot1 <- readRDS(paste(wkD,"###/Data/data_for_plots/Plot1_SES.RDS", sep = ""))
-d1 <- unique(Plot1$data)
+nn <- plot_barchart(df,"nearest neighbour") + theme(legend.position = "none", axis.title.x = element_blank(),axis.text.x = element_blank())
+spec <- plot_barchart(df,"specialisation") + theme(legend.position = "none", axis.text.x = element_text(angle = 45,  vjust = 1, hjust = 1))
 
 #now do it for metrics that were calculated controlling for species diversity
-df2 <- d1 
+df2 <- Plot1$data
 df2$metric <- as.character(df2$metric)
 
 df2$metric <- ifelse(df2$metric=="richness", "functional richness", 
@@ -147,6 +142,8 @@ df2$site <- ifelse(df2$site == "BracoMorto", "Braço Morto\nAcima and Abaixo",
 df2$site[df2$site=="Gogo"] <- "Gogo Reef"
 df2$site[df2$site=="Miguasha"] <- "Miguasha Estuary"
 
+df2$value[df2$metric=="functional richness"] <- df2$value[df2$metric=="functional richness"]*100000
+
 #combine colours with df2
 df2 <- merge(df2, site2colours,by.x="site",by.y="site_order",all.x=TRUE)
 df2 <- unique(df2)
@@ -156,86 +153,40 @@ df2 <- rbind(df2,nl)
 
 #fix metric name
 df2$metric[df2$metric == "specialization"] <- "specialisation"
-df2$metric[df2$metric == "eveness"] <- "evenness"
 
-# Function for plotting when values could be positive, negative, or mixed
-plot_barchart2 <- function(x, metric) {
-  # Subset data for the selected metric
-  df1 <- x[x$metric == metric, ]
-  
-  # Ensure site is a factor with a specific order
-  df1$site <- factor(df1$site, levels = site_order)
-  
-  # Find the min and max y values
-  min_y <- min(df1$value, na.rm = TRUE)
-  max_y <- max(df1$value, na.rm = TRUE)
-  
-  # Calculate an explicit buffer for the y-axis
-  buffer <- (max_y - min_y) * 0.1  # 10% buffer based on range
-  y_limit <- c(min_y - buffer, max_y + buffer)  # Extend limits safely
-  
-  # Plotting
-  ggplot(df1, aes(x = site, y = value, fill = site)) +
-    # Add a vertical rectangle for the left half (below and above y = 0)
-    annotate("rect", xmin = 6, xmax = Inf, ymin = min_y - buffer, ymax = max_y + buffer,
-             fill = rgb(1, 1, 0.5)) +
-    # Add a vertical rectangle for the right half (below and above y = 0)
-    annotate("rect", xmin = -Inf, xmax = 6, ymin = min_y - buffer, ymax = max_y + buffer,
-             fill = rgb((255 + 255)/510, (182 + 255)/510, (193 + 255)/510)) +
-    # Add horizontal line at y = 0
-    geom_hline(yintercept = 0, color = "black") +
-    # Add bar plot
-    geom_bar(stat = "identity", position = "dodge") +
-    scale_fill_manual(values = all_site_colours, 
-                      name = "Habitat/Group",
-                      breaks = legend_sites,
-                      labels = legend_labels) +
-    labs(x = "Site", y = metric) +
-    scale_y_continuous(expand = expansion(mult = c(0, 0)), limits = y_limit) +
-    theme_classic() +
-    theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 1, size = text_scaling_factor * 16),  
-          axis.text.y = element_text(size = text_scaling_factor * 16),  
-          axis.title = element_text(size = text_scaling_factor * 18),  
-          legend.text = element_text(size = text_scaling_factor * 18),  
-          legend.title = element_text(size = text_scaling_factor * 20),  
-          legend.position = c(0.825, 0.9),
-          legend.justification = c(0.5, 1),
-          legend.key.size = unit(1, "cm"),
-          legend.background = element_rect(fill = "white", colour = "white"))
-}
+ric2 <- plot_barchart(df2,"functional richness") + theme(legend.position = "none", axis.title.x = element_blank(),axis.text.x = element_blank(),axis.title.y=element_blank())
+nn2 <- plot_barchart(df2,"nearest neighbour") + theme(legend.position = "none", axis.title.x = element_blank(),axis.text.x = element_blank(),axis.title.y=element_blank())
+spec2 <- plot_barchart(df2,"specialisation") + theme(legend.position = "none",axis.title.y=element_blank(),axis.text.x = element_text(angle = 45,  vjust = 1, hjust = 1))
 
-# Make the plot objects
-ric2 <- plot_barchart2(df2,"functional richness") + theme(legend.position = "none",axis.title.x = element_blank(), axis.title.y = element_blank(), axis.text.x = element_blank())
-nn2 <- plot_barchart2(df2,"nearest neighbour") + theme(legend.position = "none", axis.title.y = element_blank(), axis.text.x = element_text(angle = 45,  vjust = 1, hjust = 1))
-spe2 <- plot_barchart2(df2,"specialisation") + theme(axis.title.x = element_blank(),axis.text.x = element_blank())
-div2 <- plot_barchart2(df2,"divergence") + theme(legend.position = "none",axis.title.x = element_blank(), axis.text.x = element_blank())
-eve2 <- plot_barchart2(df2,"evenness") + theme(legend.position = "none", axis.text.x = element_text(angle = 45,  vjust = 1, hjust = 1))
-
-# Combine the ggplots and save as pdf (ric, ric2, nn, nn2)
+#combine the ggplots and save as pdf (ric, ric2, nn, nn2, sp, sp2)
 # Define the heights for each row
-row_heights <- c(0.25,2.4,3.1)  
-# Add panel labels
+row_heights <- c(0.25,2.4,2.4,3.2)  # Adjust the heights
+#add panel labels
 p1 <- grid.text("a.", y = 59.5, x = 0.15,gp = gpar(fontsize = 30, fontface = "bold") )
 trop <- grid.text("tropical", y = 45, x = 0.5,gp = gpar(fontsize = 30, fontface = "bold", col = "red") )
 temp <- grid.text("temperate/\nsubtropical", y = 30, x = 0.80,gp = gpar(fontsize = 30, fontface = "bold", col = "grey22") )
 ricA <- grid.arrange(ric, p1,trop,temp, ncol = 1, heights = c(3, 0.05,0.05,0.05))
 p2 <- grid.text("c.", y = 20.5, x = 0.15,gp = gpar(fontsize = 30, fontface = "bold") )
 nnA <- grid.arrange(nn, p2, ncol = 1, heights = c(1, 0.05))  
+p3 <- grid.text("e.", y = 20.5, x = 0.15,gp = gpar(fontsize = 30, fontface = "bold") )
+specA <- grid.arrange(spec, p3, ncol = 1, heights = c(1, 0.05))  
 
 p4 <- grid.text("b.", y = 20.5, x = 0.15,gp = gpar(fontsize = 30, fontface = "bold") )
 ric2A <- grid.arrange(ric2, p4, ncol = 1, heights = c(1, 0.05))  
 p5 <- grid.text("d.", y = 20.5, x = 0.15,gp = gpar(fontsize = 30, fontface = "bold") )
 nn2A <- grid.arrange(nn2, p5, ncol = 1, heights = c(1, 0.05))  
+p6 <- grid.text("f.", y = 20.5, x = 0.15,gp = gpar(fontsize = 30, fontface = "bold") )
+spec2A <- grid.arrange(spec2, p6, ncol = 1, heights = c(1, 0.05))  
 
 bp1 <- ggplot() + 
-  annotate("text", label = "observed metric", x = 0.5, y = 0.6, angle = 0, size = 14) +
+  annotate("text", label = "all species", x = 0.5, y = 0.6, angle = 0, size = 14) +
   xlim(0, 1) + 
   ylim(0.575, 0.612) +
   theme_void() +
   theme(plot.margin = margin(0,0,0,0))
 
 bp2 <- ggplot() + 
-  annotate("text", label = "standardized effect size", x = 0.5, y = 0.6, angle = 0, size = 14) +
+  annotate("text", label = "diversity-controlled", x = 0.5, y = 0.6, angle = 0, size = 14) +
   xlim(0, 1) + 
   ylim(0.575, 0.612) +
   theme_void() +
@@ -244,61 +195,7 @@ bp2 <- ggplot() +
 g1 <- grid.arrange(bp1,bp2, ncol = 3, widths = c(3, 0.3, 2.9), layout_matrix = rbind(c(1, NA, 2)))
 g2 <- grid.arrange(ricA,ric2A, ncol = 3, widths = c(3, 0.3, 2.9), layout_matrix = rbind(c(1, NA, 2)))
 g3 <- grid.arrange(nnA, nn2A, ncol = 3, widths = c(3, 0.3, 2.9), layout_matrix = rbind(c(1, NA, 2)))
-
-# Now use grid.arrange to layout the two rows
-combined_plots <- grid.arrange(
-  g1,
-  g2,
-  g3,
-  heights = row_heights,  # Use the defined row heights
-  nrow = 3
-)
-
-ggsave(plot = combined_plots, 
-       filename = "###/figure 1. Two FD metrics all species and control for diversity_wSES.png",
-       height = 22, width =20,  dpi = 300, device = "png",limitsize = FALSE,
-       bg = "white"
-)
-
-## Do the same for the other metrics to go in supplementary material
-# Combine the ggplots and save as pdf (spe, spe2, eve, eve2, div, div2)
-# Define the heights for each row
-row_heights <- c(0.25,2.4,2.4,3.2)  # Adjust the heights
-#add panel labels
-p1 <- grid.text("a.", y = 59.5, x = 0.15,gp = gpar(fontsize = 30, fontface = "bold") )
-trop <- grid.text("tropical", y = 50, x = 0.5,gp = gpar(fontsize = 30, fontface = "bold", col = "red") )
-temp <- grid.text("temperate/\nsubtropical", y = 55, x = 0.80,gp = gpar(fontsize = 30, fontface = "bold", col = "grey22") )
-speA <- grid.arrange(spe, p1,trop,temp, ncol = 1, heights = c(3, 0.05,0.05,0.05))
-p2 <- grid.text("e.", y = 20.5, x = 0.15,gp = gpar(fontsize = 30, fontface = "bold") )
-eveA <- grid.arrange(eve, p2, ncol = 1, heights = c(1, 0.05))  
-p3 <- grid.text("c.", y = 20.5, x = 0.15,gp = gpar(fontsize = 30, fontface = "bold") )
-divA <- grid.arrange(div, p3, ncol = 1, heights = c(1, 0.05))  
-
-p4 <- grid.text("b.", y = 20.5, x = 0.15,gp = gpar(fontsize = 30, fontface = "bold") )
-spe2A <- grid.arrange(spe2, p4, ncol = 1, heights = c(1, 0.05))  
-p5 <- grid.text("f.", y = 20.5, x = 0.15,gp = gpar(fontsize = 30, fontface = "bold") )
-eve2A <- grid.arrange(eve2, p5, ncol = 1, heights = c(1, 0.05))  
-p6 <- grid.text("d.", y = 20.5, x = 0.15,gp = gpar(fontsize = 30, fontface = "bold") )
-div2A <- grid.arrange(div2, p6, ncol = 1, heights = c(1, 0.05))  
-
-bp1 <- ggplot() + 
-  annotate("text", label = "observed metric", x = 0.5, y = 0.6, angle = 0, size = 14) +
-  xlim(0, 1) + 
-  ylim(0.575, 0.612) +
-  theme_void() +
-  theme(plot.margin = margin(0,0,0,0))
-
-bp2 <- ggplot() + 
-  annotate("text", label = "standardized effect size", x = 0.5, y = 0.6, angle = 0, size = 14) +
-  xlim(0, 1) + 
-  ylim(0.575, 0.612) +
-  theme_void() +
-  theme(plot.margin = margin(0,0,0,0))
-
-g1 <- grid.arrange(bp1,bp2, ncol = 3, widths = c(3, 0.3, 2.9), layout_matrix = rbind(c(1, NA, 2)))
-g2 <- grid.arrange(speA,spe2A, ncol = 3, widths = c(3, 0.3, 2.9), layout_matrix = rbind(c(1, NA, 2)))
-g3 <- grid.arrange(divA, div2A, ncol = 3, widths = c(3, 0.3, 2.9), layout_matrix = rbind(c(1, NA, 2)))
-g4 <- grid.arrange(eveA, eve2A, ncol = 3, widths = c(3, 0.3, 2.9), layout_matrix = rbind(c(1, NA, 2)))
+g4 <- grid.arrange(specA, spec2A, ncol = 3, widths = c(3, 0.3, 2.9), layout_matrix = rbind(c(1, NA, 2)))
 
 # Now use grid.arrange to layout the two rows
 combined_plots <- grid.arrange(
@@ -310,7 +207,10 @@ combined_plots <- grid.arrange(
   nrow = 4
 )
 
+
 ggsave(plot = combined_plots, 
-       filename = "###/Sfigure 5. Three FD metrics all species and control for diversity_SES.png",
+       filename = "###/figure 2. Three FD metrics all species and control for diversity.png",
        height = 32, width =20,  dpi = 300, device = "png",limitsize = FALSE,
-       bg = "white")
+       bg = "white"
+)
+

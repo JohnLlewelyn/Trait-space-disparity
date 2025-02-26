@@ -1,15 +1,12 @@
-#combine RDSs (after adding names) and check/tidy data
+#combine Devonian trait RDSs (after adding names) and check/tidy data
 library(ggplot2)
 library(dplyr)
 library(readxl)
 
 #Adjust file path at"###"
 
-# Set working directory to  folder containing the RDS files
-setwd("###/")
-
 #new_env1 <- new.env()
-DF <- readRDS("data/Devonian_fish_traits_RDS/Mig&GoImp_2024.RDS")
+DF <- readRDS("###/Data/Devonian_fish_traits_RDS/Mig&GoImp_2024.RDS")
 
 #subset to communities/sites to keep
 kp <- c("Miguasha","Gogo")
@@ -83,4 +80,5 @@ table(mg$spiracle) #good
 table(mg$caudal.fin.shape) #good
 
 rm(list= ls()[! (ls() %in% c('mg'))])
-#saveRDS(mg,"##/data/Devonian_fish_traits_tidy_RDS/Devonian_traits_Miguasha&Gogo_tidy.rds")
+
+#saveRDS(mg,"###/data/Devonian_fish_traits_tidy_RDS/Devonian_traits_Miguasha&Gogo_tidy.rds")

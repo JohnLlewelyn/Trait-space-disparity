@@ -1,13 +1,12 @@
-#combine RDSs (after adding names) and check/tidy data
-
+#combine trait RDSs for modern fish (after adding names) and check/tidy data
 library(ggplot2)
 library(dplyr)
 library(rfishbase)
 
-#Adjust file path at"###"
+#Adjust file path at"###/"
 
 # Set working directory to  folder containing the RDS files for modern fish
-setwd("###/data/modern_fish_traits_RDSs")
+setwd(paste(wkD,"###/Data/modern_fish_traits_RDSs", sep =""))
 
 # List all the .rds files in the folder
 rds_files <- list.files(pattern = "\\.[rR][dD][sS]$")
@@ -67,8 +66,7 @@ traits$TL[traits$Species=="Mycteroperca bonaci"] <- 150
 traits$PosofMouth[traits$Species=="Oligoplites saurus"] <- "superior"
 traits$TL[traits$Species=="Synodus foetens"] <- 53.8
 
-#now check again
-#check they have the same values (unlikely to have exactly the same morphometrics if I measured them manually)
+#check if they have the same values 
 dups <- traits$Species[duplicated(traits$Species)]
 dups <- traits[traits$Species%in%dups,]
 dups_cut <- dups[,names(dups)!="file_name"]
@@ -87,7 +85,7 @@ fsp <- species(traits$Species, fields = c("Species", "Length","LTypeMaxM"))
 #pairs(numeric_columns)
 plot(traits$TL,traits$TL)
 
-#two TLs are way out
+#two TLs are outliers
 TL <- head(traits[order(traits$TL, decreasing = TRUE), ], n = 2) #tiger shark is 750 on fishbase, but Aetobatus narinari seems too long
 #Aetobatus narinari is a  large stingray - some sources say it can reach 8.8 meters but this might be an over estimation. 
 #Using information from Florida Museum, we now assume a maximum total length of 5 meters and adjust the other measures.
@@ -141,6 +139,7 @@ traits$caudal.fin.shape[traits$Species=="Hypanus americanus"] <- "whip-like"
 #check for missing data
 # Check for NAs in each column
 has_nas <- sapply(traits, function(x) any(is.na(x))) #no NAs
+
 # Check for empty cells in each column
 has_empty_cells <- sapply(traits, function(x) any(x == "")) #position of mouth
 table(traits$PosofMouth) #one appears to be empty -> Melichthys niger
@@ -156,6 +155,7 @@ flatfish <- c("Etropus longimanus","Paralichthys brasiliensis","Citharichthys sp
 traits$BodyShapeII[traits$Species%in%flatfish] <- "compressed and lies on side"
 traits$BodyShapeI[traits$Species=="Etropus longimanus"] <- "fusiform / normal"
 traits$BodyShapeI[traits$Species=="Etropus crossotus"] <- "short and / or deep"
+
 #fix bat fish, strange body shape
 traits$BodyShapeI[traits$Species=="Ogcocephalus nasutus"] <- "other"
 traits$BodyShapeII[traits$Species=="Ogcocephalus nasutus"] <- "angular"

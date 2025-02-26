@@ -1,4 +1,4 @@
-##Use mFD to apply PCoA and get some functional diversity metrics
+##Use mFD to apply PCoA and get some functional richness metrics, including all species diversity
 
 #Load packages
 library(mFD)
@@ -8,13 +8,14 @@ library(gawdis)
 library(ggpubr)
 library(cowplot)
 
-#Adjust file path at"###"
+#Adjust file paths as needed
+wkD <- "~/Dropbox/Devonian fish/manuscript/ProcB revision/GitHub_code&data_revised"
 
 setwd(wkD)
 
 #get modern fish data #together&tidied.rds from combine and tidy RDS files.R
 new_env <- new.env()
-source("###/Code/2_3_tidy data/2_Devonian_combine_and_tidy_modern_RDS files.R", local = new_env)
+source("Code/2_3_tidy data/2_Devonian_combine_and_tidy_modern_RDS files.R", local = new_env)
 fish <- get("traits", envir = new_env)
 rm(new_env)
 
@@ -22,7 +23,7 @@ setwd(wkD)
 
 #get Devonian fish data # Devonian_traits_tidy.rds from Devonian_tidy.R
 new_env <- new.env()
-source("###/Code/2_3_tidy data/3_Devonian_tidy_Gogo_Miguasha.R", local = new_env)
+source("Code/2_3_tidy data/3_Devonian_tidy_Gogo_Miguasha.R", local = new_env)
 dv <- get("mg", envir = new_env)
 rm(new_env)
 
@@ -36,7 +37,7 @@ fish <- rbind(fish,dv)
 #remove Little Rock Lake; too few fish
 fish <- fish[fish$community!="traits_Little_Rock_Lake",]
 
-#separate trait data, dropping SL because of inconsistency in how it is measured, and drop mandible because it is highly skewed
+#separate trait data, dropping SL because of inconsistency in how it is measured and mandible because it is highly skewed
 trait_names <- c("Species","BodyShapeI","BodyShapeII","TL","HL","ED","POL","BD","PosofMouth","eye.position","spiracle","caudal.fin.shape") #"mandible"
 trait <- fish[,trait_names]
 trait <- unique(trait)
@@ -102,7 +103,7 @@ GD_all <- gawdis(traits) #no issue with negative weights, but have unbalanced di
 attr(GD_all,"correls") #contribution are equal
 attr(GD_all,"weights") #all have positive weights
 
- #figure out which traits to keep - must have no negative weights (but unbalanced distribution can be okay - it indicates distribution of values that are heavily skewed or that these traits have many identical values for most of the species
+ #figure out which traits to keep - must have no negative weights (but unbalanced distribution is okay - indicates distribution of values that is heavily skewed or that these traits have many identical values for most of the species - it means that rare categories only have weak contriutions to distances#
  num_traits <- ncol(traits)
  max_combinations <- vector("list", num_traits)
  max_no_warning <- 0
@@ -142,7 +143,7 @@ for (i in 8:ncol(traits)) {
   }
 }
 
-# max_combination_names contains the names of traits in the models with the most traits that didn't produce unbalanced distribution warning
+# max_combination_names contains the names of traits in the models with the most traits that didn't produce warnings
 max_combination_names
 
 #compare combinations that don't have unbalanced data 
@@ -179,7 +180,7 @@ lapply(duplicates_all, table) #no duplicates in terms of trait sets
 
 #check mad index to identify best functional space
 # retrieve the functional space associated with minimal quality metric: 
-lapply(qual,function(x){apply(x$quality_fspaces, 2, which.min)}) 
+lapply(qual,function(x){apply(x$quality_fspaces, 2, which.min)}) #different measures suggest different number of dimensions (6 or 7)
 apply(qual1$quality_fspaces,2,which.min)
 
 #plot it to see
@@ -220,7 +221,7 @@ species_coords <- lapply(sp_coords, function(x) {
   pm$species <- row.names(pm)
   pm$species <-  gsub("\\.", " ", pm$species)
   spc <- merge(spc,pm, by=("species"), all.x=TRUE)})
-saveRDS(species_coords, "###/Data/PCoAs/species_coordinates.RDS")
+saveRDS(species_coords, "Data/PCoAs/species_coordinates.RDS")
 
 #see correlations between traits and axes #can handle up to 10 traits, produces data frames and plots
 Tcorrs <- mapply(function(x,y){
@@ -231,12 +232,24 @@ Tcorrs <- mapply(function(x,y){
 Tcorrs1 <- traits.faxes.cor(sp_tr = traits, sp_faxes_coord = sp_coords1[,paste("PC",1:8, sep="")])
 Tcorrs1 <- Tcorrs1[order(Tcorrs1$axis, Tcorrs1$value), ]
 #save it
-write.csv(Tcorrs1,"###/tables/PC_trait_correls.csv", row.names = FALSE)
+write.csv(Tcorrs1,"~/Dropbox/Devonian fish/manuscript/ProcB revision/tables/PC_trait_correls.csv", row.names = FALSE)
 
 #calculate functional diversity indices
 #need matrix of 1s and 0s where row = community and column = fish species -> the presence_matrix
 alpha_FD <- lapply(sp_coords, function(x){alpha.fd.multidim(sp_faxes_coord = x[,paste("PC",1:7, sep="")], asb_sp_w = as.matrix(presence_matrix))}) #can scale (scaling = TRUE) so values are between 0 and 1, but different indices are squashed into different portions of this range; can instead set mean to 0 and sd to 1
 alpha_FD3 <- alpha.fd.multidim(sp_faxes_coord = sp_coords1[,paste("PC",1:8, sep="")], asb_sp_w = as.matrix(presence_matrix))
+
+#FUSE() - species level functional specialisation
+GD_matrix <- as.matrix(GD_all)
+sp_sel_i <- names(as.matrix(presence_matrix)[i, which(as.matrix(presence_matrix)[i,]>0)])
+sp_mat_i <- GD_matrix[sp_sel_i,sp_sel_i]
+#sp_dist_i <- as.dist(sp_mat_i)
+#sp_co_i <- sp_coords1[sp_sel_i,]
+# FUSE_i <- fuse(sp_dist = sp_dist_i,  #this returns standardised measure with highest and lowest 0 and 1
+#                sp_faxes_coord = sp_co_i,
+#                GE = rep(1,dim(sp_co_i)[1]),
+#                standGE = F)
+sp_mat_i1set <- sp_mat_i[lower.tri(sp_mat_i)]
 
 #functional diversity according to different metrics
 inds <- lapply(alpha_FD, function(x){x$functional_diversity_indices}) #for each community: species richness,  Functional Dispersion, Functional Richness etc
@@ -336,13 +349,13 @@ metricPlots[[3]] <- metricPlots[[3]] + theme(legend.position = "right")
 #arrange them and plot
 figure <- ggarrange(metricPlots[[1]],metricPlots[[2]],metricPlots[[3]],
 ncol = 3, nrow = 1, heights=c(3), widths = c(4,4,5)) 
-wkD <- "###/"
-pdf(paste(wkD, "###/3combos_balanced_allspecies_allmetrics.pdf",sep=""),width=35, height=10)
+wkD <- "~/Dropbox/Devonian fish/manuscript/ProcB revision/"
+pdf(paste(wkD, "supplementary material/3combos_balanced_allspecies_allmetrics.pdf",sep=""),width=35, height=10)
 figure
 dev.off()
 
 #all traits figure
-pdf(paste(wkD,"###/metrics_all_traitsEig5.pdf",sep=""),width=18, height=15)
+pdf(paste(wkD,"supplementary material/metrics_all_traitsEig5.pdf",sep=""),width=18, height=15)
 metricsPlots3
 dev.off()
 
@@ -356,25 +369,52 @@ lc3$metric <- factor(lc3$metric, levels = c("richness","nearest\nneighbour","eve
 Plot3 <- plotF(lc3)
 
 #and plot them
-pdf(paste(wkD,"###/5metrics_all_traits.pdf",sep=""),width=12, height=10)
+pdf(paste(wkD,"supplementary material/5metrics_all_traits.pdf",sep=""),width=12, height=10)
 Plot3
 dev.off()
 
-saveRDS(Plot3,paste(wkD,"###/Plot3.RDS",sep=""))
+saveRDS(Plot3,paste(wkD,"/Data/data_for_plots/Plot3.RDS",sep=""))
 
 #and with the 3 combo of traits
 long_indsCc <- lapply(long_indsCc, function(x) { x$metric<-
   factor(x$metric, levels = c("richness","nearest\nneighbour","evenness","divergence","specialization"))
          return(x)})
 metricPlots4 <- lapply(long_indsCc,plotF)
-
 #remove legends from some of them
 metricPlots4[[1]] <- metricPlots4[[1]] + theme(legend.position = "none")
 metricPlots4[[2]] <- metricPlots4[[2]] + theme(legend.position = "none")
 
 figure <- ggarrange(metricPlots4[[1]],metricPlots4[[2]],metricPlots4[[3]],
                     ncol = 3, nrow = 1, heights=c(3), widths = c(3, 3, 4)) 
-pdf(paste(wkD,"###/3combos_balanced_allspecies_5 metrics.pdf",sep=""),width=28, height=10)
+pdf(paste(wkD,"supplementary material/3combos_balanced_allspecies_5 metrics.pdf",sep=""),width=30, height=15)
 figure
 dev.off()
+
+###do it also with sub-sampling, to control for species diversity - see script gawdis and mFD_subsampling.R### ##################
+##
+##
+###get the centroids (no need to sub-ample for this)################################################################################
+cr <- function(x, n_coords) {
+  coords <- x$asb_G_coord
+  # Dynamically bind the specified number of coords
+  cents_list <- lapply(1:n_coords, function(i) coords[[i]])
+  cents <- do.call(rbind, cents_list)
+  cents <- data.frame(cents)
+  cents$site <- names(coords)[1:n_coords]
+  cents$site <- gsub("traits_", "", cents$site)
+  cents$habitat <- ifelse(cents$site %in% c("Gogo", "Caribbean", "Chile_reef"), "reef",
+                          ifelse(cents$site %in% c("Miguasha", "Ythan", "Santa_Cruz_Channel"), "estuary", "fresh water"))
+  cents$group <- ifelse(cents$site %in% c("Miguasha", "Gogo"), "Devonian",
+                        ifelse(cents$site %in% c("Santa_Cruz_Channel", "BracoMorto", "Caribbean"), "tropical", "temperate/subtropical"))
+  return(cents)
+}
+
+centroids <- lapply(dets, cr, n_coords = 7)
+centroids3 <- cr(dets3,8)
+
+#save as table
+cent3_round <- centroids3
+cent3_round <- cent3_round %>%
+  mutate_if(is.numeric, round, digits = 3)
+write.csv(cent3_round,"###/PC_trait_centroids.csv", row.names = FALSE)
 

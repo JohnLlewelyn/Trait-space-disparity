@@ -1,4 +1,4 @@
-#heatmaps combined with within vs between
+# Centroid distance and Jaccard Index heatmaps and within vs between violin plots
 library(ggplot2)
 library(gridExtra)
 library(cowplot)
@@ -7,18 +7,18 @@ library(cowplot)
 
 setwd("###/")
 
-#get the individual ggplots (generated in Hypervolumes_fixedBandwidths.R)
-#distance plots
-DTime <- readRDS("###/plot resources/dist_time_plot.rds")
-DHabitat <- readRDS("###/plot resources/dist_habitat_plot.rds")
-DClimate <- readRDS("###/plot resources/dist_climate_plot.rds")
-DCentroids <- readRDS("###/plot resources/centroid_dist.rds")
+# Get the individual ggplots (generated in Hypervolumes_fixedBandwidths.R)
+# Distance plots
+DTime <- readRDS("###/Data/data_for_plots/dist_time_plot.rds")
+DHabitat <- readRDS("###/Data/data_for_plots/dist_habitat_plot.rds")
+DClimate <- readRDS("###/Data/data_for_plots/dist_climate_plot.rds")
+DCentroids <- readRDS("###/Data/data_for_plots/centroid_dist.rds")
 
-#overlap plots
-JTime <- readRDS("###/plot resources/dist_time_plotJ.rds")
-JHabitat <- readRDS("###/plot resources/dist_habitat_plotJ.rds")
-JClimate <- readRDS("###/plot resources/dist_climate_plotJ.rds")
-jac_plot <- readRDS("###/plot resources/jack_plot.rds")
+# Overlap plots
+JTime <- readRDS("###/Data/data_for_plots/dist_time_plotJ.rds")
+JHabitat <- readRDS("###/Data/data_for_plots/dist_habitat_plotJ.rds")
+JClimate <- readRDS("###/Data/data_for_plots/dist_climate_plotJ.rds")
+jac_plot <- readRDS("###/Data/data_for_plots/jack_plot.rds")
 
 # Create a layout matrix to define the arrangement
 layout_matrix <- matrix(
@@ -28,12 +28,13 @@ layout_matrix <- matrix(
     1,  4, 5), 
   nrow = 4, ncol = 3, byrow = TRUE)
 
-# remove some legends and save legend by itself
+# Remove some legends and save legend by itself
 DTime <- DTime + theme(legend.position = "none", plot.margin = margin(t = 10, r = 10, b = 10, l = 60, unit = "pt"))
 DHabitat <- DHabitat + theme(legend.position = "none", plot.margin = margin(t = 10, r = 10, b = 10, l = 60, unit = "pt"))
 DClimate <- DClimate + theme(legend.position = "none", plot.margin = margin(t = 10, r = 10, b = 10, l = 60, unit = "pt"))
 legend <- get_legend(DTime + theme(legend.position = "right"))
-#make some mostly blank plots for labels
+
+# Make some mostly blank plots for labels
 # Create a blank ggplot object
 a._plot <- ggplot() + geom_blank() + theme_void() + annotate("text", hjust = 1, x = 100, y = 0, 
   label = "a. heatmap of centroid distances", size = 10, fontface =2) + 
@@ -51,14 +52,14 @@ combined_dist <- grid.arrange(
   heights = c(0.1, 1, 1, 1)
 )
 
+setwd("###/")
 ggsave(plot = combined_dist, 
-       filename = "figures/for_ms/figure 3. combine_dist.png",
+       filename = "figures/figure 2. combine_dist.png",
        height = 20, width =30,  dpi = 300, device = "png",limitsize = FALSE,
        bg = "white")
 
-
-#Now the jaccard index
-# remove some legends and save legend by itself
+# Now the Jaccard index
+# Remove some legends and save legend by itself
 JTime <- JTime + theme(legend.position = "none", plot.margin = margin(t = 10, r = 10, b = 10, l = 60, unit = "pt"))
 JHabitat <- JHabitat + theme(legend.position = "none", plot.margin = margin(t = 10, r = 10, b = 10, l = 60, unit = "pt"))
 JClimate <- JClimate + theme(legend.position = "none", plot.margin = margin(t = 10, r = 10, b = 10, l = 60, unit = "pt"))
@@ -81,7 +82,7 @@ jacs_combined <- grid.arrange(
 )
 
 ggsave(plot = jacs_combined, 
-       filename = "###/figures/for_ms/figure 4. combine_JaccInd.png",
+       filename = "figures/figure 3. combine_JaccInd.png",
        height = 20, width =30,  dpi = 300, device = "png",limitsize = FALSE,
        bg = "white")
 
