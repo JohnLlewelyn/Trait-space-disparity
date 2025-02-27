@@ -33,14 +33,17 @@ This folder contains five subfolders, organized by the specific steps of the ana
     - 2_Devonian_combine_and_tidy_modern_RDS_files.R: Tidies the modern fish data.
     - 3_Devonian_tidy_Gogo_Miguasha.R: Tidies the Devonian fish data.
 3.	4_5_6_mFD/
-    Contains three files:
-    - 4_gawdis_and_mFD_allSP.R: Calculates Gower distances, applies PCoA, and computes community functional diversity metrics (functional richness, nearest neighbour, specialization).
-    - 5_gawdis_and_mFD_subsampling.R: Performs the same calculations as 4_gawdis_and_mFD_allSP.R, but subsamples communities to control for species diversity.
-    - 6_gawdis_and_mFD_subsampling_plots.R: Plots the functional diversity metrics calculated in the previous two files.
+    Contains four files:
+    - 4_gawdis_and_mFD_allSP.R: Calculates Gower distances, applies PCoA, and computes community functional diversity metrics (functional richness, nearest neighbour, specialization, evenness, divergence).
+    - 5_gawdis_and_mFD_NullModel.R: Performs the same calculations as 4_gawdis_and_mFD_allSP.R, but build null models to calculate standardized effect sizes.
+    - 5b_gawdis_and_mFD_NullModel_SUPPLEMENTARY_BALANCED.R: Performs the same calculations as 5_gawdis_and_mFD_NullModel.R but only uses trait combinations that resulted in a balanced distribution when calculating Gower distances.
+    - 6_barchart_OnePanel.R: Plots the functional diversity metrics calculated in 4_gawdis_and_mFD_allSP.R and 5_gawdis_and_mFD_NullModel.R.
 4.	7_8_hypervolume/
     Contains two files:
-    - 7_Hypervolumes_fixedBandwidths.R: Uses PCoA coordinates to fit hypervolumes describing each community’s trait space and calculates distances between trait space centroids and overlap (Jaccard Index).
-    - 8_combine_heatmaps_and_within_vs_between.R: Plots the hypervolume results.
+    - 7_Hypervolumes_fixedBandwidthsMean_JaccardSplit.R: Uses PCoA coordinates to fit hypervolumes describing each community’s trait space and calculates distances between trait space centroids and overlap (Jaccard Index).
+    - 7b_Hypervolumes_fixedBandwidths_dataForPlots_and plot versus global_SUPPLEMENTRY.R: Build hypervolumes and make plots of each community's trait space versus the global trait space.
+    - 8_combine_heatmaps_and_within_vs_between.R: Plots the hypervolume results as heatmaps and within versus between violin plot.
+    - 8b_combine_heatmaps_and_within_vs_between_TurnoverNestedness_SUPPLEMENTARY.R: decomposes differences in Jaccard index due to turnover versus nested, and builds heatmaps and violin plots for both. 
 5.	9_traits_by_site/
     Contains one file:
     - 9_plot_traits_by_sites_updated2.R: Plots the distribution of traits across the two Devonian and six modern communities.
