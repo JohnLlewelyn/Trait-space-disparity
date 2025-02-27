@@ -2,8 +2,6 @@
 
 Title: Trait-space disparity in fish communities spanning 380 million years from the Late Devonian to present
 
-Authors: John Llewelyn, John A. Long, Richard Cloutier, Alice M. Clement, Giovanni Strona, Frédérik Saltré, Michael S. Y. Lee, Brian Choo, Kate Trinajstic, Olivia Vanhaesebroucke, Corey J. A. Bradshaw
-
 In this study, we compare trait space of modern and Devonian fish communities to test whether species have dealt with their environment using similar strategies through time. Fish trait data was collected from databases, scientific literature, photographs, and expert opinion. Missing data was inferred using multiple imputation. The complete trait data set was then used to calculate Gower distances, quantifying differences between fish species in trait space. Principal coordinate analysis was applied to these Gower distances to ordinate species in lower dimensional space, and the species’ coordinates from the PCoA analysis were used to calculate functional diversity metrics, including: functional richness, functional nearest neighbour, functional specialisation, distance between community trait space centroids, and overlap between community trait spaces (Jaccard Index). The data and R code for replicating our analyses are provided in this repository. In the code, search for ‘###’ to find lines where file paths need to be specified/updated. The code files are numbered in the order they should be run.
 
 Repository Structure
