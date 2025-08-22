@@ -23,7 +23,7 @@ This folder contains five subfolders:
   - Contains RDS files produced by the code (below) and used to generate the study’s figures.
 
 Code Folder
-This folder contains five subfolders, organized by the specific steps of the analysis:
+This folder contains six subfolders, organized by the specific steps of the analysis:
 
 1.	1_multiple_imputation/
     Contains one file:
@@ -33,18 +33,24 @@ This folder contains five subfolders, organized by the specific steps of the ana
     - 2_combine_and_tidy_modern_RDS_files.R: Tidies the modern fish data.
     - 3_Devonian_tidy.R: Tidies the Devonian fish data.
 3.	4_5_6_mFD/
-    Contains four files:
-    - 4_gawdis_and_mFD_allSP.R: Calculates Gower distances, applies PCoA, and computes community functional diversity metrics (functional richness, nearest neighbour, specialization, evenness, divergence).
+    Contains seven files:
+    - 4_gawdis_and_mFD.R: Calculates Gower distances, applies PCoA, and computes community functional diversity metrics (functional richness, nearest neighbour, specialization, evenness, divergence).
+    - 4b_gawdis_and_mFD_HighAccuracyTraitsOnly.R: Same as above but restricted to traits that were imputed with high accuracy.
+    - 4c_gawdis_and_mFD_MorphometricTraitsOnly.R: Same as above but restricted to morphometric traits.
     - 5_gawdis_and_mFD_NullModel.R: Performs the same calculations as 4_gawdis_and_mFD_allSP.R, but build null models to calculate standardized effect sizes.
-    - 5b_gawdis_and_mFD_NullModel_SUPPLEMENTARY_BALANCED.R: Performs the same calculations as 5_gawdis_and_mFD_NullModel.R but only uses trait combinations that resulted in a balanced distribution when calculating Gower distances.
-    - 6_barchart_OnePanel.R: Plots the functional diversity metrics calculated in 4_gawdis_and_mFD_allSP.R and 5_gawdis_and_mFD_NullModel.R.
+    - 6_barchart_OnePanel_cross-hatched.R: Plots the functional diversity metrics calculated in 4_gawdis_and_mFD_allSP.R and 5_gawdis_and_mFD_NullModel.R.
+    - 6b_barchart_OnePanelHighAccuracyTraits.R: same as above but uses 4b_gawdis_and_mFD_HighAccuracyTraitsOnly.R.
+    - 6c_barchart_OnePanelMorphometrics.R: same as above but uses 4c_gawdis_and_mFD_MorphometricTraitsOnly.R.
 4.	7_8_hypervolume/
-    Contains two files:
+    Contains four files:
     - 7_Hypervolumes_fixedBandwidthsMean_JaccardSplit.R: Uses PCoA coordinates to fit hypervolumes describing each community’s trait space and calculates distances between trait space centroids and overlap (Jaccard Index).
-    - 7b_Hypervolumes_fixedBandwidths_dataForPlots_and plot versus global_SUPPLEMENTRY.R: Build hypervolumes and make plots of each community's trait space versus the global trait space.
+    - 7b_Hypervolumes_fixedBandwidths_dataForPlots_and plot versus global.R: Build hypervolumes and make plots of each community's trait space versus the global trait space.
     - 8_combine_heatmaps_and_within_vs_between.R: Plots the hypervolume results as heatmaps and within versus between violin plot.
-    - 8b_combine_heatmaps_and_within_vs_between_TurnoverNestedness_SUPPLEMENTARY.R: decomposes differences in Jaccard index due to turnover versus nested, and builds heatmaps and violin plots for both. 
+    - 8b_combine_heatmaps_and_within_vs_between_TurnoverNestedness.R: decomposes differences in Jaccard index due to turnover versus nested, and builds heatmaps and violin plots for both. 
 5.	9_traits_by_site/
     Contains one file:
-    - 9_plot_traits_by_sites_updated2.R: Plots the distribution of traits across the two Devonian and six modern communities.
+    - 9_plot_traits_by_sites_violin_hatch.R: Plots the distribution of traits across the two Devonian and six modern communities.
+6.	10_species estimates/
+    Contains one file:
+    - Canowindra Chao1 estimate.R: Estimates species richness for Canowindra.
 
