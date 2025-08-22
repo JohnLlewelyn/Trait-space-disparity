@@ -30,8 +30,8 @@ This folder contains five subfolders, organized by the specific steps of the ana
     - 1_missForest_taxonomyHiGitHub.R: Imputes missing trait data for Devonian fish.
 2.	2_3_tidy_data/
     Contains two files:
-    - 2_Devonian_combine_and_tidy_modern_RDS_files.R: Tidies the modern fish data.
-    - 3_Devonian_tidy_Gogo_Miguasha.R: Tidies the Devonian fish data.
+    - 2_combine_and_tidy_modern_RDS_files.R: Tidies the modern fish data.
+    - 3_Devonian_tidy.R: Tidies the Devonian fish data.
 3.	4_5_6_mFD/
     Contains four files:
     - 4_gawdis_and_mFD_allSP.R: Calculates Gower distances, applies PCoA, and computes community functional diversity metrics (functional richness, nearest neighbour, specialization, evenness, divergence).
