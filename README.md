@@ -50,7 +50,7 @@ This folder contains six subfolders, organized by the specific steps of the anal
 5.	9_traits_by_site/
     Contains one file:
     - 9_plot_traits_by_sites_violin_hatch.R: Plots the distribution of traits across the two Devonian and six modern communities.
-6.	10_species estimates/
+6.	10_species richness estimates/
     Contains one file:
     - Canowindra Chao1 estimate.R: Estimates species richness for Canowindra.
 
