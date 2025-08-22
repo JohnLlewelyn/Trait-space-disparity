@@ -19,7 +19,7 @@ This folder contains five subfolders:
   - Contains RDS files of species traits for each modern community.
 4.	Devonian_fish_traits_RDS/
   - Contains an RDS file with the Devonian species' traits, including imputed data.
-5.	data_for_plots/
+5.	output/
   - Contains RDS files produced by the code (below) and used to generate the study’s figures.
 
 Code Folder
