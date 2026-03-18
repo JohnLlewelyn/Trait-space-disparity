@@ -145,7 +145,7 @@ shuffle_matrix_fixed <- function(mat, n_swaps = 1000) {
   return(mat)
 }
 ####SHUFFLING
-# Initialize matrix to store null FRic values
+# Initialize matrix to store null metric values
 
 null_fd <- list()
 n_simulations <- 1000
@@ -159,19 +159,19 @@ for (i in 1:n_simulations) {
   print(rowSums(shuffled_asb_sp_w))
   print(table(colSums(shuffled_asb_sp_w)))
   print(shuffled_asb_sp_w[,1:4])
-  # Compute FRic for shuffled communities
+  # Compute metric value for shuffled communities
   fd <- mFD::alpha.fd.multidim(
     sp_faxes_coord = sp_coords1[,paste("PC",1:7, sep="")],
     asb_sp_w = shuffled_asb_sp_w
   )
 
-  # Store null FRic values
+  # Store null metric values
   null_fd[[i]] <- fd[[1]][,1:which(colnames(fd[[1]])=="fspe")]
   print(i)
 }
 
 #save the null results
-filepath <- "~/Dropbox/Devonian fish/manuscript/PPP/revision"
+filepath <- "~/###/###"
 saveRDS(null_fd, paste(filepath,"/output/null_results.RDS", sep=""))
 end_time <- Sys.time()
 end_time - start_time # 13 hours hours
